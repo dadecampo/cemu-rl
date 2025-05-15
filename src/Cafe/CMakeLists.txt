@@ -520,6 +520,8 @@ add_library(CemuCafe
   OS/RPL/rpl_structs.h
   OS/RPL/rpl_symbol_storage.cpp
   OS/RPL/rpl_symbol_storage.h
+  RL/TestPythonLibrary.cpp
+  RL/TestPythonLibrary.h
   TitleList/GameInfo.h
   TitleList/ParsedMetaXml.h
   TitleList/SaveInfo.cpp
@@ -604,3 +606,15 @@ endif()
 if(WIN32)
 	target_link_libraries(CemuCafe PRIVATE iphlpapi)
 endif()
+
+project(TestPythonLibrary1)
+
+add_subdirectory("RL/libs/pybind11")
+set(CMAKE_CXX_STANDARD 17)
+
+pybind11_add_module(TestPythonLibrary1 RL/TestPythonLibrary.cpp)
+
+# EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
+# define (VERSION_INFO) here.
+target_compile_definitions(TestPythonLibrary1
+                           PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})

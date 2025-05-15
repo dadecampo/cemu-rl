@@ -1555,44 +1555,46 @@ void MainWindow::OnGameLoaded()
 {
 	if (m_debugger_window)
 		m_debugger_window->OnGameLoaded();
-}
-
-void MainWindow::AsyncSetTitle(std::string_view windowTitle)
-{
-	wxCommandEvent set_title_event(wxEVT_SET_WINDOW_TITLE);
-	set_title_event.SetString(wxHelper::FromUtf8(windowTitle));
-	g_mainFrame->QueueEvent(set_title_event.Clone());
-}
-
-void MainWindow::CreateCanvas()
-{
-    // create panel for canvas
-    m_game_panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxNO_BORDER | wxWANTS_CHARS);
-    auto* sizer = new wxBoxSizer(wxVERTICAL);
-
-    // shouldn't be needed, but who knows
-    m_game_panel->Bind(wxEVT_KEY_UP, &MainWindow::OnKeyUp, this);
-    m_game_panel->Bind(wxEVT_CHAR, &MainWindow::OnChar, this);
-
-    m_game_panel->SetSizer(sizer);
-    this->GetSizer()->Add(m_game_panel, 1, wxEXPAND, 0, nullptr);
-
-    // create canvas
-    if (ActiveSettings::GetGraphicsAPI() == kVulkan)
+	}
+	
+	void MainWindow::AsyncSetTitle(std::string_view windowTitle)
+	{
+		wxCommandEvent set_title_event(wxEVT_SET_WINDOW_TITLE);
+		set_title_event.SetString(wxHelper::FromUtf8(windowTitle));
+		g_mainFrame->QueueEvent(set_title_event.Clone());
+	}
+	
+	void MainWindow::CreateCanvas()
+	{
+		// create panel for canvas
+		m_game_panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxNO_BORDER | wxWANTS_CHARS);
+		auto* sizer = new wxBoxSizer(wxVERTICAL);
+		
+		// shouldn't be needed, but who knows
+		m_game_panel->Bind(wxEVT_KEY_UP, &MainWindow::OnKeyUp, this);
+		m_game_panel->Bind(wxEVT_CHAR, &MainWindow::OnChar, this);
+		
+		m_game_panel->SetSizer(sizer);
+		this->GetSizer()->Add(m_game_panel, 1, wxEXPAND, 0, nullptr);
+		
+		AcquisitionSystem::GetInstance().Start();
+		
+		// create canvas
+		if (ActiveSettings::GetGraphicsAPI() == kVulkan)
 		m_render_canvas = new VulkanCanvas(m_game_panel, wxSize(1280, 720), true);
-	else
+		else
 		m_render_canvas = GLCanvas_Create(m_game_panel, wxSize(1280, 720), true);
 
-	// mouse events
-	m_render_canvas->Bind(wxEVT_MOTION, &MainWindow::OnMouseMove, this);
-	m_render_canvas->Bind(wxEVT_MOUSEWHEEL, &MainWindow::OnMouseWheel, this);
-	m_render_canvas->Bind(wxEVT_LEFT_DOWN, &MainWindow::OnMouseLeft, this);
-	m_render_canvas->Bind(wxEVT_LEFT_UP, &MainWindow::OnMouseLeft, this);
-	m_render_canvas->Bind(wxEVT_RIGHT_DOWN, &MainWindow::OnMouseRight, this);
-	m_render_canvas->Bind(wxEVT_RIGHT_UP, &MainWindow::OnMouseRight, this);
-
-	m_render_canvas->Bind(wxEVT_GESTURE_PAN, &MainWindow::OnGesturePan, this);
-
+		// mouse events
+		m_render_canvas->Bind(wxEVT_MOTION, &MainWindow::OnMouseMove, this);
+		m_render_canvas->Bind(wxEVT_MOUSEWHEEL, &MainWindow::OnMouseWheel, this);
+		m_render_canvas->Bind(wxEVT_LEFT_DOWN, &MainWindow::OnMouseLeft, this);
+		m_render_canvas->Bind(wxEVT_LEFT_UP, &MainWindow::OnMouseLeft, this);
+		m_render_canvas->Bind(wxEVT_RIGHT_DOWN, &MainWindow::OnMouseRight, this);
+		m_render_canvas->Bind(wxEVT_RIGHT_UP, &MainWindow::OnMouseRight, this);
+		
+		m_render_canvas->Bind(wxEVT_GESTURE_PAN, &MainWindow::OnGesturePan, this);
+		
 	// key events
 	m_render_canvas->Bind(wxEVT_KEY_UP, &MainWindow::OnKeyUp, this);
 	m_render_canvas->Bind(wxEVT_KEY_DOWN, &MainWindow::OnKeyDown, this);
@@ -1606,6 +1608,7 @@ void MainWindow::CreateCanvas()
 
 	if (m_padView)
 		m_padView->InitializeRenderCanvas();
+
 }
 
 void MainWindow::DestroyCanvas()

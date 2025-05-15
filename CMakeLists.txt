@@ -221,6 +221,10 @@ if (ENABLE_CUBEB)
 endif()
 
 add_subdirectory("dependencies/ih264d" EXCLUDE_FROM_ALL)
+find_package(libusb)
+if (NOT libusb_FOUND)
+	add_subdirectory("dependencies/libusb" EXCLUDE_FROM_ALL)
+endif()
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "(aarch64)|(AARCH64)")
 	add_subdirectory("dependencies/xbyak_aarch64" EXCLUDE_FROM_ALL)
